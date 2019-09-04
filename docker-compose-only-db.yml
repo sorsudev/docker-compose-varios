@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+
+  mysql:
+    build: ./mysql
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: mainDbSecureOrNot
+      MYSQL_USER: mainuserSecureOrNot
+      MYSQL_PASSWORD: 9GD@a3@S#CUj*Mav
+      MYSQL_ROOT_PASSWORD: =A76z*DcKAd+=y^-
+      MYSQL_DATABASES: "mayadmsdb mediawikidatabase drusitedbdata"
+    ports:
+      - "3306:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/fernando/mysql/data:/var/lib/mysql
+    restart: always

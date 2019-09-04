@@ -1,0 +1,74 @@
+version: '3.7'
+
+services:
+
+  mysql:
+    build: ./mysql
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/fernando/mysql/data:/var/lib/mysql
+    restart: always
+
+  mysql-backup-jobs:
+    build: ./alpine-periodic-backup
+    container_name: mysql-backup
+    user: root
+    environment:
+      MYSQL_CONTAINER_NAME: mysql
+      MYSQL_ROOT_PASSWORD: =A76z*DcKAd+=y^-
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/fernando/mysql/backup:/opt/mysql/backup
+    command: crond -f -d 8
+    restart: always
+    links:
+      - mysql
+
+  mediawiki:
+    image: mediawiki
+    container_name: mediawiki
+    restart: always
+    ports:
+      - 1989:80
+    links:
+      - mysql
+    volumes:
+      - /var/www/html/images
+      # After initial setup, download LocalSettings.php to the same directory as
+      # this yaml and uncomment the following line and use compose to restart
+      # the mediawiki service
+      # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+  limesurvey:
+    image: acspri/limesurvey
+    container_name: limesurvey
+    ports:
+      - 1990:80
+    environment:
+      LIMESURVEY_DB_HOST: mysql
+      LIMESURVEY_ADMIN_USER: admin
+      LIMESURVEY_ADMIN_PASSWORD: password
+      LIMESURVEY_ADMIN_NAME: Lime Administrator
+      LIMESURVEY_ADMIN_EMAIL: lime@lime.lime
+      LIMESURVEY_DB_PASSWORD: =A76z*DcKAd+=y^-
+    links:
+      - mysql
+
+  mayaedms:
+    image: mayanedms/mayanedms
+    container_name: mayaedms
+    ports:
+      - 1991:8000
+    environment:
+      MAYAN_DATABASE_ENGINE: django.db.backends.mysql
+      MAYAN_DATABASE_HOST: mysql
+      MAYAN_DATABASE_NAME: mayadmsdb
+      MAYAN_DATABASE_PASSWORD: 9GD@a3@S#CUj*Mav
+      MAYAN_DATABASE_USER: mainuserSecureOrNot
+      MAYAN_DATABASE_CONN_MAX_AGE: 60
+    links:
+      - mysql
+    volumes:
+      - /docker-volumes/mayan-edms/media:/var/lib/mayan 

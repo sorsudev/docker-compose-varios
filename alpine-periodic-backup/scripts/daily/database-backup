@@ -1,0 +1,13 @@
+#!/bin/sh
+
+BACKUP_FOLDER="/opt/mysql/backup"
+NOW=$(date "+%F_%R")
+MYSQLDUMP="$(which mysqldump)"
+MHOST=$MYSQL_CONTAINER_NAME
+MPASS="$MYSQL_ROOT_PASSWORD"
+MUSER="root"
+
+[ ! -d "$BACKUP_FOLDER" ] && mkdir -p "$BACKUP_FOLDER"
+
+mysql -h $MHOST -u $MUSER -p$MPASS -N -e 'show databases' | while read dbname; do $MYSQLDUMP -h $MHOST -u $MUSER -p$MPASS --complete-insert --routines --triggers --single-transaction "$dbname" > "$BACKUP_FOLDER/backup-$dbname-$NOW".sql; done
+cd $BACKUP_FOLDER && rm -rf *mysql* && rm -rf *information_schema*  && rm -rf *performance_schema*
